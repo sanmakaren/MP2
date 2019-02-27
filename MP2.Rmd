@@ -62,11 +62,10 @@ Note that the following code chunk has `eval = FALSE` meaning "don't evaluate th
 
 ```{r, eval = FALSE}
 View(training)
-glimpse(training)
+#glimpse(training)
 
 View(test)
-glimpse(test)
-
+#glimpse(test)
 
 fake_train <- training %>%
   sample_frac(0.75)
@@ -90,10 +89,10 @@ As much as possible, try to do all your data wrangling here:
 
 #variables:   Categorical - BldgType,  Numerical - GrLivArea
 
-training <- training %>% 
-  select(Id, GrLivArea, BldgType, SalePrice)
-test <- test %>% 
-  select(Id, GrLivArea, BldgType)
+# training <- training %>% 
+#   select(Id, GrLivArea, BldgType, SalePrice)
+# test <- test %>% 
+#   select(Id, GrLivArea, BldgType)
 ```
 
 
@@ -138,7 +137,7 @@ predicted_points_1
 ## Estimate of your Kaggle score
 
 ```{r}
-rmsle(predicted_points_1$.fitted , predicted_points_1$SalePrice)
+rmsle(predicted_points_1$SalePrice , predicted_points_1$.fitted)
 ```
 
 
@@ -176,14 +175,38 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 ## Model fitting
 
 ```{r}
+# 1. Fit model to training data
+model_2_formula <- as.formula("SalePrice~ GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+model_2 <- lm(model_2_formula, data = fake_train)
 
+# 2.a) Extract regression table with confidence intervals
+model_2 %>%
+  broom::tidy(conf.int = TRUE)
+
+# 2.b) Extract point-by-point info of points used to fit model
+fitted_points_2 <- model_2 %>%
+  broom::augment()
+fitted_points_2
+
+# 2.c) Extract model summary info
+model_2 %>%
+  broom::glance()
+
+# 3. Make predictions on test data. Compare this to use of broom::augment()
+# for fitted_points()
+predicted_points_2 <- model_2 %>%
+  broom::augment(newdata = fake_test)
+predicted_points_2
+
+
+# HAVE TO LOG BEFORE FITTING AND UNLOG AFTER PREDICTING
 ```
 
 
 ## Estimate of your Kaggle score
 
 ```{r}
-
+rmsle(predicted_points_2$SalePrice, predicted_points_2$.fitted)
 ```
 
 

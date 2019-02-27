@@ -5,16 +5,16 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "3887741667",
+    "hash" : "0",
     "id" : "C39E1923",
-    "lastKnownWriteTime" : 1551294683,
-    "last_content_update" : 1551294683913,
+    "lastKnownWriteTime" : 1551295644,
+    "last_content_update" : 1551295644751,
     "path" : "~/GitHub/MP2/MP2.Rmd",
     "project_path" : "MP2.Rmd",
     "properties" : {
-        "cursorPosition" : "140,64",
+        "cursorPosition" : "201,55",
         "last_setup_crc32" : "B1058669e1cdb5c",
-        "scrollLine" : "102"
+        "scrollLine" : "179"
     },
     "relative_order" : 1,
     "source_on_save" : false,
