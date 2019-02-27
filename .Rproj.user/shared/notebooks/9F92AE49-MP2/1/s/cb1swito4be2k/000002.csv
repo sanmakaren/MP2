@@ -1,0 +1,3 @@
+"0","submission <- sample_submission %>% "
+"0","  mutate(SalePrice = mean(training$SalePrice))"
+"0","write_csv(submission, path = ""data/submission_reach_for_stars.csv"")"

@@ -17,6 +17,7 @@ output:
 # Load all your packages here:
 library(tidyverse)
 library(scales)
+library(Metrics)
 
 # Set default behavior for all code chunks here:
 knitr::opts_chunk$set(
