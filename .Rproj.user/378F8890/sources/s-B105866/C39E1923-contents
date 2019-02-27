@@ -18,6 +18,7 @@ output:
 library(tidyverse)
 library(scales)
 library(Metrics)
+library(broom)
 
 # Set default behavior for all code chunks here:
 knitr::opts_chunk$set(
@@ -80,6 +81,7 @@ As much as possible, try to do all your data wrangling here:
 
 ```{r}
 
+#variables:   Categorical - BldgType,  Numerical - GrLivArea
 ```
 
 
