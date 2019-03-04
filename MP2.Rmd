@@ -17,7 +17,7 @@ output:
 # Load all your packages here:
 library(tidyverse)
 library(scales)
-library(Metrics)
+library(MLmetrics)
 library(broom)
 
 # Set default behavior for all code chunks here:
