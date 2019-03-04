@@ -212,7 +212,7 @@ predicted_points_2
 ## Estimate of your Kaggle score
 
 ```{r}
-MLmetrics::RMSE(y_pred = predicted_points_2$SalePrice, y_true = predicted_points_2$.fitted)
+MLmetrics::RMSLE(y_pred = predicted_points_2$SalePrice, y_true = predicted_points_2$.fitted)
 ```
 
 
