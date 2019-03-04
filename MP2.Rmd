@@ -180,9 +180,31 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 ## Model fitting
 
+Use log10 saleprice to get RMSLE
 ```{r}
+fake_train <- fake_train %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+
+         )
+
+fake_test <- fake_test %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+
+         )
+```
+
+
+```{r}
+
+
 # 1. Fit model to training data
-model_2_formula <- as.formula("SalePrice~ GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+#model_2_formula <- as.formula("SalePrice~ GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + log10_OverallQual + HalfBath + Foundation + SaleCondition")
+
 model_2 <- lm(model_2_formula, data = fake_train)
 
 # 2.a) Extract regression table with confidence intervals
@@ -204,6 +226,12 @@ predicted_points_2 <- model_2 %>%
   broom::augment(newdata = fake_test)
 predicted_points_2
 
+# Save predictions in pretend_test data frame
+fake_test <- fake_test %>% 
+  mutate(
+    log10_SalePrice_hat = predicted_points_2$.fitted,
+    SalePrice_hat = 10^log10_SalePrice_hat
+    )
 
 # HAVE TO LOG BEFORE FITTING AND UNLOG AFTER PREDICTING
 ```
@@ -212,7 +240,7 @@ predicted_points_2
 ## Estimate of your Kaggle score
 
 ```{r}
-MLmetrics::RMSLE(y_pred = predicted_points_2$SalePrice, y_true = predicted_points_2$.fitted)
+MLmetrics::RMSLE(y_pred = fake_test$SalePrice_hat, y_true = fake_test$SalePrice)
 ```
 
 
