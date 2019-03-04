@@ -1,4 +1,0 @@
-"0","fake_train <- training %>%"
-"0","  sample_frac(0.75)"
-"0","fake_test <- training %>%"
-"0","  anti_join(fake_train, by=""Id"")"

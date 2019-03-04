@@ -1,16 +1,7 @@
 "0","# Load all your packages here:"
 "0","library(tidyverse)"
 "0","library(scales)"
-"0","library(MLmetrics)"
-"2","
-Attaching package: ‘MLmetrics’
-
-"
-"2","The following object is masked from ‘package:base’:
-
-    Recall
-
-"
+"0","library(Metrics)"
 "0","library(broom)"
 "0","# Set default behavior for all code chunks here:"
 "0","knitr::opts_chunk$set("
