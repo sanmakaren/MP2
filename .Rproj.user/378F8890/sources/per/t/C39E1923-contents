@@ -17,7 +17,7 @@ output:
 # Load all your packages here:
 library(tidyverse)
 library(scales)
-library(Metrics)
+library(MLmetrics)
 library(broom)
 
 # Set default behavior for all code chunks here:
@@ -61,18 +61,16 @@ Always, ALWAYS, **ALWAYS** start by looking at your raw data. This gives you vis
 Note that the following code chunk has `eval = FALSE` meaning "don't evaluate this chunk with knitting" because `.Rmd` files won't knit if they include a `View()`:
 
 ```{r, eval = FALSE}
-View(training)
+#View(training)
 #glimpse(training)
 
-View(test)
+#View(test)
 #glimpse(test)
 
-fake_train <- training %>%
-  sample_frac(0.75)
-fake_test <- training %>%
-  anti_join(fake_train, by="Id")
-
 ```
+
+
+
 
 In particular, pay close attention to the variables and variable types in the
 `sample_submission.csv`. Your submission must match this exactly.
@@ -104,6 +102,14 @@ As much as possible, try to do all your data wrangling here:
 # Minimally viable product
 
 ## Model fitting
+
+```{r}
+fake_train <- training %>%
+  sample_frac(0.75)
+fake_test <- training %>%
+  anti_join(fake_train, by="Id")
+
+```
 
 ```{r}
 # 1. Fit model to training data

@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1551293572247.000,
-    "dirty" : true,
+    "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "573560639",
     "id" : "76529028",
     "lastKnownWriteTime" : 1551121840,
-    "last_content_update" : 1551294415741,
+    "last_content_update" : 1551121840,
     "path" : "~/Spring2019 Classes/SDS 293/Regression_Lecture_8.R",
     "project_path" : null,
     "properties" : {
         "cursorPosition" : "17,17",
-        "scrollLine" : "13"
+        "scrollLine" : "0"
     },
     "relative_order" : 2,
     "source_on_save" : false,

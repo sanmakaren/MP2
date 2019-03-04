@@ -30,8 +30,6 @@ mtcars <- mtcars %>%
 set.seed(76)
 mtcars_train <- mtcars %>%
   sample_frac(0.5)
-
-
 mtcars_test <- mtcars %>%
   anti_join(mtcars_train, by="ID")
 

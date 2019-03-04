@@ -1,0 +1,4 @@
+"0","rmsle(predicted_points_1$SalePrice , predicted_points_1$.fitted)"
+"2","Error in rmsle(predicted_points_1$SalePrice, predicted_points_1$.fitted) : 
+  could not find function ""rmsle""
+"
