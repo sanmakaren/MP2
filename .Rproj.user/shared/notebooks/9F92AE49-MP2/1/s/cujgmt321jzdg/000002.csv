@@ -1,0 +1,6 @@
+"0","# 1. Fit model to training data"
+"0","model_1_formula <- as.formula(""SalePrice~ GrLivArea + BldgType"")"
+"0","model_1 <- lm(model_1_formula, data = fake_train)"
+"0","# 2.a) Extract regression table with confidence intervals"
+"0","model_1 %>%"
+"0","  broom::tidy(conf.int = TRUE)"
