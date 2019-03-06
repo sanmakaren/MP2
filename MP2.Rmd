@@ -99,9 +99,6 @@ training <- training %>%
 
 
 
-```{r}
-mean(df$RMSLE)
-```
 
 
 
@@ -185,15 +182,16 @@ predict_test <- model_1 %>%
   broom::augment(newdata = test)
 
 test <- test %>% 
-  mutate(
-    log10_SalePrice_hat = predict_test$.fitted,
-    SalePrice_hat = 10^log10_SalePrice_hat
-  )
+  mutate(SalePrice_hat = predict_test$.fitted)
+
+
 ```
 
 ```{r}
-submission <- sample_submission %>% 
-  mutate(SalePrice = mean(test$SalePrice_hat))
+submission <- test %>% 
+  mutate(SalePrice = predict_test$.fitted) %>%
+  select(Id,SalePrice)
+
 
 write_csv(submission, path = "data/submission_due_diligence.csv")
 ```
