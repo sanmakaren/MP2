@@ -1,4 +1,0 @@
-"0","# 2.b) Extract point-by-point info of points used to fit model"
-"0","fitted_points_1 <- model_1 %>%"
-"0","  broom::augment()"
-"0","fitted_points_1"

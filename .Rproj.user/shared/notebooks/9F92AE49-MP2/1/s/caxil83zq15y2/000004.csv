@@ -1,5 +1,0 @@
-"0","#variables:   Categorical - BldgType,  Numerical - GrLivArea"
-"0","# training <- training %>% "
-"0","#   select(Id, GrLivArea, BldgType, SalePrice)"
-"0","# test <- test %>% "
-"0","#   select(Id, GrLivArea, BldgType)"

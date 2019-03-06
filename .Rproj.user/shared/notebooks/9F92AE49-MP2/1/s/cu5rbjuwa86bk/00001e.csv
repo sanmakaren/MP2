@@ -1,3 +1,0 @@
-"0","# 2.c) Extract model summary info"
-"0","model_2 %>%"
-"0","  broom::glance()"

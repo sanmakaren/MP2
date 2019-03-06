@@ -11,6 +11,8 @@ output:
     toc_float:
       collapsed: true
     df_print: kable
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -223,7 +225,6 @@ test <- test %>%
 ## Model fitting
 
 ```{r}
-
 training <- training %>% 
   sample_frac(1) %>% 
   mutate(fold = rep(1:5, length = n())) %>% 
@@ -326,21 +327,42 @@ library(leaps)
 regsubsets(x = model_2_formula, data = training, nvmax = 6)
 ```
 
+
 ```{r}
-training <- training %>% 
+library(leaps)
+```
+
+
+```{r}
+trainingt <- training %>% 
   sample_frac(1) %>% 
   mutate(fold = rep(1:5, length = n())) %>% 
-  arrange(fold)
+  arrange(fold) 
 
-df2 = data.frame(fold = numeric(0), RMSLE = numeric(0))
+trainingt <- trainingt %>%
+  select(log10_GrLivArea,BldgType,OverallQual,HalfBath, Foundation, SaleCondition, log10_SalePrice)
+
 model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
 
-  
 
-for(j in 1:5){
+```
+
+
+```{r}
+
+
+
+
+
   
   # Fit the model with each subset of predictors on the training part of the fold
-  best.fit=regsubsets(SalePrice~.,data=training[folds!=j,], nvmax=19) 
+regfit.full=regsubsets(log10_SalePrice~.,data=trainingt, nvmax=19) 
+summary(regfit.full)
+  
+```
+
+
+```{r}  
   # For each subset
   for(i in 1:19){
     # Predict on the hold out part of the fold for that subset
@@ -386,20 +408,7 @@ for(j in 1:5){
 ```
 
 
-```{r}
-# For each fold
 
-  # Fit the model with each subset of predictors on the training part of the fold
-  best.fit=regsubsets(SalePrice~.,data=Hitters[folds!=j,], nvmax=19) 
-  # For each subset
-  for(i in 1:19){
-    # Predict on the hold out part of the fold for that subset
-    pred=predict(best.fit, Hitters[folds==j,],id=i)
-    # Get the mean squared error for the model trained on the fold with the subset
-    cv.errors[j,i]=mean((Hitters$Salary[folds==j]-pred)^2)
-  }
-
-```
 
 ## Estimate of your Kaggle score
 
