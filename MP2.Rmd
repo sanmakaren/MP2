@@ -313,14 +313,93 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 
 
-# Point of diminishing returns
+# Point of diminishing returns -- curent place
+
+```{r}
+library(leaps)
+```
+
 
 ## Model fitting
 
 ```{r}
-
+regsubsets(x = model_2_formula, data = training, nvmax = 6)
 ```
 
+```{r}
+training <- training %>% 
+  sample_frac(1) %>% 
+  mutate(fold = rep(1:5, length = n())) %>% 
+  arrange(fold)
+
+df2 = data.frame(fold = numeric(0), RMSLE = numeric(0))
+model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+
+  
+
+for(j in 1:5){
+  
+  # Fit the model with each subset of predictors on the training part of the fold
+  best.fit=regsubsets(SalePrice~.,data=training[folds!=j,], nvmax=19) 
+  # For each subset
+  for(i in 1:19){
+    # Predict on the hold out part of the fold for that subset
+    pred=predict(best.fit, training[folds==j,],id=i)
+    # Get the mean squared error for the model trained on the fold with the subset
+    cv.errors[j,i]=mean((training$SalePrice[folds==j]-pred)^2)
+    
+    pretend_training <- training %>% 
+      filter(fold != j)
+    pretend_test <- training %>% 
+      filter(fold == j)
+    
+    # Fit model on pretend training
+    model_2 <- lm(model_2_formula, data = pretend_training)
+    
+    fitted_points_2 <- model_2 %>%
+      broom::augment(newdata = pretend_training)
+    
+    predicted_points_2 <- model_2 %>%
+      broom::augment(newdata = pretend_test)
+  
+    pretend_test <- pretend_test %>% 
+      mutate(
+        log10_SalePrice_hat = predicted_points_2$.fitted,
+      SalePrice_hat = 10^log10_SalePrice_hat
+    )
+    
+  rmsle_hat = MLmetrics::RMSLE(y_pred = pretend_test$SalePrice_hat, y_true = pretend_test$SalePrice)
+    
+  df2[nrow(df2) + 1,] = list(j,rmsle_hat)
+  }
+  
+
+  
+  
+  
+  
+  
+  
+ 
+
+}
+```
+
+
+```{r}
+# For each fold
+
+  # Fit the model with each subset of predictors on the training part of the fold
+  best.fit=regsubsets(SalePrice~.,data=Hitters[folds!=j,], nvmax=19) 
+  # For each subset
+  for(i in 1:19){
+    # Predict on the hold out part of the fold for that subset
+    pred=predict(best.fit, Hitters[folds==j,],id=i)
+    # Get the mean squared error for the model trained on the fold with the subset
+    cv.errors[j,i]=mean((Hitters$Salary[folds==j]-pred)^2)
+  }
+
+```
 
 ## Estimate of your Kaggle score
 
