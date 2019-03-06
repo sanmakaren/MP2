@@ -69,7 +69,7 @@ Note that the following code chunk has `eval = FALSE` meaning "don't evaluate th
 #glimpse(test)
 
 ```
-**need visuals**
+**need visuals?**
 
 
 
@@ -91,17 +91,9 @@ training <- training %>%
 
 ***
 
-
-
-# Minimally viable product
+# Minimally viable product -- not done dont worry abt this section
 
 ## Model fitting
-
-
-
-
-
-
 
 ## Create your submission CSV
 
@@ -112,18 +104,11 @@ submission <- sample_submission %>%
 write_csv(submission, path = "data/submission_mvp.csv")
 ```
 
-
 ## Screenshot of your Kaggle score
 
 Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
 
 ![](score_screenshot.png){ width=100% }
-
-
-
-
-
-
 
 ***
 
@@ -279,8 +264,6 @@ for(j in 1:5){
 
 
 
-
-
 ## Estimate of your Kaggle score
 
 ```{r}
@@ -289,20 +272,12 @@ mean(df2$RMSLE)
 
 
 
-
-
 ## Create your submission CSV
 
 ```{r}
-
 predict_test2 <- model_2 %>%
   broom::augment(newdata = test)
 
-```
-
-
-
-```{r}
 submission <- test %>% 
   mutate(
     log10_SalePrice = predict_test2$.fitted,
