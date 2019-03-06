@@ -19,6 +19,7 @@ library(tidyverse)
 library(scales)
 library(MLmetrics)
 library(broom)
+library(caret)
 
 # Set default behavior for all code chunks here:
 knitr::opts_chunk$set(
@@ -68,16 +69,9 @@ Note that the following code chunk has `eval = FALSE` meaning "don't evaluate th
 #glimpse(test)
 
 ```
+**need visuals**
 
 
-
-
-In particular, pay close attention to the variables and variable types in the
-`sample_submission.csv`. Your submission must match this exactly.
-
-```{r}
-glimpse(sample_submission)
-```
 
 ## Data wrangling
 
@@ -86,11 +80,11 @@ As much as possible, try to do all your data wrangling here:
 ```{r}
 
 #variables:   Categorical - BldgType,  Numerical - GrLivArea
+#log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
 
-# training <- training %>% 
-#   select(Id, GrLivArea, BldgType, SalePrice)
-# test <- test %>% 
-#   select(Id, GrLivArea, BldgType)
+training <- training %>% 
+  select(Id, GrLivArea, BldgType, SalePrice, OverallQual, HalfBath, Foundation, SaleCondition)
+
 ```
 
 
@@ -103,48 +97,13 @@ As much as possible, try to do all your data wrangling here:
 
 ## Model fitting
 
-```{r}
-fake_train <- training %>%
-  sample_frac(0.75)
-fake_test <- training %>%
-  anti_join(fake_train, by="Id")
 
-```
 
 ```{r}
-# 1. Fit model to training data
-model_1_formula <- as.formula("SalePrice~ GrLivArea + BldgType")
-model_1 <- lm(model_1_formula, data = fake_train)
-
-# 2.a) Extract regression table with confidence intervals
-model_1 %>%
-  broom::tidy(conf.int = TRUE)
-
-# 2.b) Extract point-by-point info of points used to fit model
-fitted_points_1 <- model_1 %>%
-  broom::augment()
-fitted_points_1
-
-# 2.c) Extract model summary info
-model_1 %>%
-  broom::glance()
-
-# 3. Make predictions on test data. Compare this to use of broom::augment()
-# for fitted_points()
-predicted_points_1 <- model_1 %>%
-  broom::augment(newdata = fake_test)
-predicted_points_1
-
-
-
+mean(df$RMSLE)
 ```
 
 
-## Estimate of your Kaggle score
-
-```{r}
-MLmetrics::RMSLE(y_pred = predicted_points_1$SalePrice ,y_true =  predicted_points_1$.fitted)
-```
 
 
 ## Create your submission CSV
@@ -164,7 +123,6 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 ![](score_screenshot.png){ width=100% }
 
 
-## Comparisons of estimated scores and Kaggle scores
 
 
 
@@ -179,71 +137,63 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 # Due diligence
 
 ## Model fitting
-
-
-Use log10 saleprice to get RMSLE
 ```{r}
-fake_train <- fake_train %>% 
-  mutate(log10_SalePrice = log10(SalePrice),
-         log10_GrLivArea = log10(GrLivArea),
-         log10_OverallQual = log10(OverallQual)
-         )
+training <- training %>% 
+  sample_frac(1) %>% 
+  mutate(fold = rep(1:5, length = n())) %>% 
+  arrange(fold)
 
-fake_test <- fake_test %>% 
-  mutate(log10_SalePrice = log10(SalePrice),
-         log10_GrLivArea = log10(GrLivArea),
-         log10_OverallQual = log10(OverallQual)
-         )
+df = data.frame(fold = numeric(0), RMSLE = numeric(0))
+
+model_1_formula <- as.formula("SalePrice~ GrLivArea + BldgType")
+
+  
+
+for(j in 1:5){
+  pretend_training <- training %>% 
+    filter(fold != j)
+  pretend_test <- training %>% 
+    filter(fold == j)
+    
+  # Fit model on pretend training
+  model_1 <- lm(model_1_formula, data = pretend_training)
+    
+  fitted_points_1 <- model_1 %>%
+    broom::augment(newdata = pretend_training)
+    
+  predicted_points_1 <- model_1 %>%
+    broom::augment(newdata = pretend_test)
+    
+  rmsle_hat = MLmetrics::RMSLE(y_pred = predicted_points_1$.fitted, y_true = predicted_points_1$SalePrice)
+    
+  df[nrow(df) + 1,] = list(j,rmsle_hat)
+
+}
 ```
 
+## Estimate of your Kaggle Score
 ```{r}
-# 1. Fit model to training data
-model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + log10_OverallQual + HalfBath + Foundation + SaleCondition")
-
-model_2 <- lm(model_2_formula, data = fake_train)
-
-# 2.a) Extract regression table with confidence intervals
-model_2 %>%
-  broom::tidy(conf.int = TRUE)
-
-# 2.b) Extract point-by-point info of points used to fit model
-fitted_points_2 <- model_2 %>%
-  broom::augment()
-fitted_points_2
-
-# 2.c) Extract model summary info
-model_2 %>%
-  broom::glance()
-
-# 3. Make predictions on test data. Compare this to use of broom::augment()
-# for fitted_points()
-predicted_points_2 <- model_2 %>%
-  broom::augment(newdata = fake_test)
-predicted_points_2
-
-fake_test <- fake_test %>% 
-  mutate(
-    log10_SalePrice_hat = predicted_points_2$.fitted,
-    SalePrice_hat = 10^log10_SalePrice_hat
-    )
-
-
-
+mean(df$RMSLE)
 ```
 
-
-## Estimate of your Kaggle score
-
-```{r}
-MLmetrics::RMSLE(y_pred = fake_test$SalePrice_hat, y_true = fake_test$SalePrice)
-```
 
 
 ## Create your submission CSV
 
 ```{r}
+predict_test <- model_1 %>%
+  broom::augment(newdata = test)
+
+test <- test %>% 
+  mutate(
+    log10_SalePrice_hat = predict_test$.fitted,
+    SalePrice_hat = 10^log10_SalePrice_hat
+  )
+```
+
+```{r}
 submission <- sample_submission %>% 
-  mutate(SalePrice = mean(training$SalePrice))
+  mutate(SalePrice = mean(test$SalePrice_hat))
 
 write_csv(submission, path = "data/submission_due_diligence.csv")
 ```
@@ -272,16 +222,71 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 ## Model fitting
 
+Use log10 saleprice to get RMSLE
 ```{r}
+training <- training %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+         )
+
 
 ```
+
+
+## Model fitting
+
+```{r}
+
+training <- training %>% 
+  sample_frac(1) %>% 
+  mutate(fold = rep(1:5, length = n())) %>% 
+  arrange(fold)
+
+df2 = data.frame(fold = numeric(0), RMSLE = numeric(0))
+  
+
+for(j in 1:5){
+  pretend_training <- training %>% 
+    filter(fold != j)
+  pretend_test <- training %>% 
+    filter(fold == j)
+    
+  # Fit model on pretend training
+  model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+  model_2 <- lm(model_2_formula, data = pretend_training)
+    
+  fitted_points_2 <- model_2 %>%
+    broom::augment(newdata = pretend_training)
+    
+  predicted_points_2 <- model_2 %>%
+    broom::augment(newdata = pretend_test)
+  
+  pretend_test <- pretend_test %>% 
+    mutate(
+      log10_SalePrice_hat = predicted_points_2$.fitted,
+      SalePrice_hat = 10^log10_SalePrice_hat
+    )
+    
+  rmsle_hat = MLmetrics::RMSLE(y_pred = pretend_test$SalePrice_hat, y_true = pretend_test$SalePrice)
+    
+  df2[nrow(df2) + 1,] = list(j,rmsle_hat)
+
+}
+```
+
+
+
 
 
 ## Estimate of your Kaggle score
 
 ```{r}
-
+mean(df2$RMSLE)
 ```
+
+
+
 
 
 ## Create your submission CSV
