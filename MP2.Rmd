@@ -1,6 +1,6 @@
 ---
 title: "SDS/CSC 293 Mini-Project 2: Multiple Regression"
-author: "Group XX: Heloise Cheruvalath, Karen Santamaria"
+author: "Group 14: Heloise Cheruvalath, Karen Santamaria"
 date: "Wednesday, March 6^th^, 2019"
 output:
   html_document:
@@ -65,14 +65,13 @@ Always, ALWAYS, **ALWAYS** start by looking at your raw data. This gives you vis
 Note that the following code chunk has `eval = FALSE` meaning "don't evaluate this chunk with knitting" because `.Rmd` files won't knit if they include a `View()`:
 
 ```{r, eval = FALSE}
-#View(training)
-#glimpse(training)
+View(training)
+glimpse(training)
 
-#View(test)
-#glimpse(test)
+View(test)
+glimpse(test)
 
 ```
-**need visuals?**
 
 
 
@@ -82,44 +81,28 @@ As much as possible, try to do all your data wrangling here:
 
 ```{r}
 
-#variables:   Categorical - BldgType,  Numerical - GrLivArea
-#log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
-
 training <- training %>% 
   select(Id, GrLivArea, BldgType, SalePrice, OverallQual, HalfBath, Foundation, SaleCondition)
 
+training <- training %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea)
+         )
+
+test <- test %>% 
+  mutate(
+         log10_GrLivArea = log10(GrLivArea)
+         )
+
+
 ```
 
 
 
 ***
 
-# Minimally viable product -- not done dont worry abt this section
+# Minimally viable product
 
-## Model fitting
-
-## Create your submission CSV
-
-```{r}
-submission <- sample_submission %>% 
-  mutate(SalePrice = mean(training$SalePrice))
-
-write_csv(submission, path = "data/submission_mvp.csv")
-```
-
-## Screenshot of your Kaggle score
-
-Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
-
-![](score_screenshot.png){ width=100% }
-
-***
-
-
-
-
-
-# Due diligence
 
 ## Model fitting
 ```{r}
@@ -156,6 +139,12 @@ for(j in 1:5){
 }
 ```
 
+
+***
+
+
+# Due diligence
+
 ## Estimate of your Kaggle Score
 ```{r}
 mean(df$RMSLE)
@@ -164,7 +153,6 @@ mean(df$RMSLE)
 
 
 ## Create your submission CSV
-
 
 ```{r}
 
@@ -183,14 +171,14 @@ write_csv(submission, path = "data/submission_due_diligence.csv")
 
 ## Screenshot of your Kaggle score
 
-Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
+Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.28756
 
-![](score_screenshot.png){ width=100% }
+![](duediligence.png){ width=100% }
 
 
 ## Comparisons of estimated scores and Kaggle scores
 
-
+Our estimated score was 0.2718804 and our score on Kaggle was 0.28756 which is fairly close.
 
 
 
@@ -202,25 +190,6 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 # Reaching for the stars
 
-## Model fitting
-
-Use log10 saleprice to get RMSLE
-```{r}
-training <- training %>% 
-  mutate(log10_SalePrice = log10(SalePrice),
-         log10_GrLivArea = log10(GrLivArea),
-         log10_OverallQual = log10(OverallQual)
-         )
-
-test <- test %>% 
-  mutate(
-         log10_GrLivArea = log10(GrLivArea),
-         log10_OverallQual = log10(OverallQual)
-         )
-
-
-
-```
 
 
 ## Model fitting
@@ -297,14 +266,14 @@ write_csv(submission, path = "data/submission_reach_for_stars.csv")
 
 ## Screenshot of your Kaggle score
 
-Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
+Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.17383
 
-![](score_screenshot.png){ width=100% }
+![](starreaching.png){ width=100% }
 
 
 ## Comparisons of estimated scores and Kaggle scores
 
-
+Our predicted RMSLE was 0.18211 and our actual score from Kaggle was 0.17383 which is fairly close to our predicted score.
 
 
 
@@ -315,18 +284,21 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 
 
-# Point of diminishing returns -- curent place
+# Point of diminishing returns 
 
 
 
 
-```{r}
+```{r, include=FALSE}
 na.omit(training)
+```
 
+
+
+Find subset with largest adjusted R^2 for best subset selection
+```{r}
 regfit.full<-regsubsets(model_2_formula,data=training, nvmax=6) 
-summary(regfit.full)
 reg.summary=summary(regfit.full)
-
 
 plot(reg.summary$adjr2 ,xlab="Number of Variables ", ylab="Adjusted RSq",type="l")
 
@@ -335,7 +307,7 @@ points(6,reg.summary$adjr2[6], col="red",cex=2,pch=20)
 coef(regfit.full, 6)
 ```
 
-
+Find subset with smallest adjusted RSS for best subset selection
 ```{r}
 plot(reg.summary$rss ,xlab="Number of Variables ", ylab="RSS",type="l")
 
@@ -345,8 +317,6 @@ points(6,reg.summary$rss[6], col="red",cex=2,pch=20)
 
 
 Given that the subset was the model that contained all the variables for model_2, we know that the predicted RMSLE for the best subset of predicter variables is the same as the predicted RMSLE for model_2. 
-
-
 
 
 
@@ -386,9 +356,12 @@ write_csv(submission, path = "data/submission_diminishing_returns.csv")
 
 ## Screenshot of your Kaggle score
 
-Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
+Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.17383
 
-![](score_screenshot.png){ width=100% }
+
+![](starreaching.png){ width=100% }
 
 
 ## Comparisons of estimated scores and Kaggle scores
+
+Our predicted RMSLE was the same as for model_2 which was 0.18211 and our actual score was the same score we got from Kaggle for model two which was 0.17383 which is fairly close to our predicted score.
