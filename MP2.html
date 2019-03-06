@@ -94822,8 +94822,8 @@ predicted_points_<span class="dv">2</span></code></pre></div>
 </div>
 <div id="estimate-of-your-kaggle-score-1" class="section level2">
 <h2>Estimate of your Kaggle score</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MLmetrics<span class="op">::</span><span class="kw">RMSLE</span>(<span class="dt">y_pred =</span> predicted_points_<span class="dv">1</span><span class="op">$</span>SalePrice ,<span class="dt">y_true =</span>  predicted_points_<span class="dv">1</span><span class="op">$</span>.fitted)</code></pre></div>
-<pre><code>## [1] 0.287491</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MLmetrics<span class="op">::</span><span class="kw">RMSLE</span>(<span class="dt">y_pred =</span> fake_test<span class="op">$</span>SalePrice_hat, <span class="dt">y_true =</span> fake_test<span class="op">$</span>SalePrice)</code></pre></div>
+<pre><code>## [1] NaN</code></pre>
 </div>
 <div id="create-your-submission-csv-1" class="section level2">
 <h2>Create your submission CSV</h2>
