@@ -143,7 +143,7 @@ predicted_points_1
 ## Estimate of your Kaggle score
 
 ```{r}
-rmsle(predicted_points_1$SalePrice , predicted_points_1$.fitted)
+MLmetrics::RMSLE(y_pred = predicted_points_1$SalePrice ,y_true =  predicted_points_1$.fitted)
 ```
 
 
@@ -180,9 +180,26 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 ## Model fitting
 
+
+Use log10 saleprice to get RMSLE
+```{r}
+fake_train <- fake_train %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+         )
+
+fake_test <- fake_test %>% 
+  mutate(log10_SalePrice = log10(SalePrice),
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+         )
+```
+
 ```{r}
 # 1. Fit model to training data
-model_2_formula <- as.formula("SalePrice~ GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + log10_OverallQual + HalfBath + Foundation + SaleCondition")
+
 model_2 <- lm(model_2_formula, data = fake_train)
 
 # 2.a) Extract regression table with confidence intervals
@@ -205,14 +222,14 @@ predicted_points_2 <- model_2 %>%
 predicted_points_2
 
 
-# HAVE TO LOG BEFORE FITTING AND UNLOG AFTER PREDICTING
+
 ```
 
 
 ## Estimate of your Kaggle score
 
 ```{r}
-rmsle(predicted_points_2$SalePrice, predicted_points_2$.fitted)
+MLmetrics::RMSLE(y_pred = predicted_points_1$SalePrice ,y_true =  predicted_points_1$.fitted)
 ```
 
 
