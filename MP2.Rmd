@@ -21,7 +21,8 @@ library(tidyverse)
 library(scales)
 library(MLmetrics)
 library(broom)
-library(caret)
+library(leaps)
+
 
 # Set default behavior for all code chunks here:
 knitr::opts_chunk$set(
@@ -316,115 +317,71 @@ Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.
 
 # Point of diminishing returns -- curent place
 
-```{r}
-library(leaps)
-```
 
-
-## Model fitting
-
-```{r}
-regsubsets(x = model_2_formula, data = training, nvmax = 6)
-```
 
 
 ```{r}
-library(leaps)
-```
+na.omit(training)
 
-
-```{r}
-trainingt <- training %>% 
-  sample_frac(1) %>% 
-  mutate(fold = rep(1:5, length = n())) %>% 
-  arrange(fold) 
-
-trainingt <- trainingt %>%
-  select(log10_GrLivArea,BldgType,OverallQual,HalfBath, Foundation, SaleCondition, log10_SalePrice)
-
-model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
-
-
-```
-
-
-```{r}
-
-
-
-
-
-  
-  # Fit the model with each subset of predictors on the training part of the fold
-regfit.full=regsubsets(log10_SalePrice~.,data=trainingt, nvmax=19) 
+regfit.full<-regsubsets(model_2_formula,data=training, nvmax=6) 
 summary(regfit.full)
-  
+reg.summary=summary(regfit.full)
+
+
+plot(reg.summary$adjr2 ,xlab="Number of Variables ", ylab="Adjusted RSq",type="l")
+
+which.max(reg.summary$adjr2)
+points(6,reg.summary$adjr2[6], col="red",cex=2,pch=20)
+coef(regfit.full, 6)
 ```
 
 
-```{r}  
-  # For each subset
-  for(i in 1:19){
-    # Predict on the hold out part of the fold for that subset
-    pred=predict(best.fit, training[folds==j,],id=i)
-    # Get the mean squared error for the model trained on the fold with the subset
-    cv.errors[j,i]=mean((training$SalePrice[folds==j]-pred)^2)
-    
-    pretend_training <- training %>% 
-      filter(fold != j)
-    pretend_test <- training %>% 
-      filter(fold == j)
-    
-    # Fit model on pretend training
-    model_2 <- lm(model_2_formula, data = pretend_training)
-    
-    fitted_points_2 <- model_2 %>%
-      broom::augment(newdata = pretend_training)
-    
-    predicted_points_2 <- model_2 %>%
-      broom::augment(newdata = pretend_test)
-  
-    pretend_test <- pretend_test %>% 
-      mutate(
-        log10_SalePrice_hat = predicted_points_2$.fitted,
-      SalePrice_hat = 10^log10_SalePrice_hat
-    )
-    
-  rmsle_hat = MLmetrics::RMSLE(y_pred = pretend_test$SalePrice_hat, y_true = pretend_test$SalePrice)
-    
-  df2[nrow(df2) + 1,] = list(j,rmsle_hat)
-  }
-  
+```{r}
+plot(reg.summary$rss ,xlab="Number of Variables ", ylab="RSS",type="l")
 
-  
-  
-  
-  
-  
-  
- 
-
-}
+which.min(reg.summary$rss)
+points(6,reg.summary$rss[6], col="red",cex=2,pch=20)
 ```
+
+
+Given that the subset was the model that contained all the variables for model_2, we know that the predicted RMSLE for the best subset of predicter variables is the same as the predicted RMSLE for model_2. 
+
+
+
+
 
 
 
 
 ## Estimate of your Kaggle score
 
-```{r}
 
+Same as prediction for model_2 RMSLE
+```{r}
+mean(df2$RMSLE)
 ```
 
 
 ## Create your submission CSV
 
+
+
 ```{r}
-submission <- sample_submission %>% 
-  mutate(SalePrice = mean(training$SalePrice))
+predict_test2 <- model_2 %>%
+  broom::augment(newdata = test)
+
+submission <- test %>% 
+  mutate(
+    log10_SalePrice = predict_test2$.fitted,
+    SalePrice = 10^log10_SalePrice
+    ) %>%
+  select(Id,SalePrice)
+
 
 write_csv(submission, path = "data/submission_diminishing_returns.csv")
 ```
+
+
 
 
 ## Screenshot of your Kaggle score
