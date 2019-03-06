@@ -221,6 +221,12 @@ predicted_points_2 <- model_2 %>%
   broom::augment(newdata = fake_test)
 predicted_points_2
 
+fake_test <- fake_test %>% 
+  mutate(
+    log10_SalePrice_hat = predicted_points_2$.fitted,
+    SalePrice_hat = 10^log10_SalePrice_hat
+    )
+
 
 
 ```
