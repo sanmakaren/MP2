@@ -177,17 +177,13 @@ mean(df$RMSLE)
 
 ## Create your submission CSV
 
+
 ```{r}
+
 predict_test <- model_1 %>%
   broom::augment(newdata = test)
 
-test <- test %>% 
-  mutate(SalePrice_hat = predict_test$.fitted)
 
-
-```
-
-```{r}
 submission <- test %>% 
   mutate(SalePrice = predict_test$.fitted) %>%
   select(Id,SalePrice)
@@ -228,6 +224,13 @@ training <- training %>%
          log10_OverallQual = log10(OverallQual)
          )
 
+test <- test %>% 
+  mutate(
+         log10_GrLivArea = log10(GrLivArea),
+         log10_OverallQual = log10(OverallQual)
+         )
+
+
 
 ```
 
@@ -242,6 +245,8 @@ training <- training %>%
   arrange(fold)
 
 df2 = data.frame(fold = numeric(0), RMSLE = numeric(0))
+model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
+
   
 
 for(j in 1:5){
@@ -251,7 +256,6 @@ for(j in 1:5){
     filter(fold == j)
     
   # Fit model on pretend training
-  model_2_formula <- as.formula("log10_SalePrice~ log10_GrLivArea + BldgType + OverallQual + HalfBath + Foundation + SaleCondition")
   model_2 <- lm(model_2_formula, data = pretend_training)
     
   fitted_points_2 <- model_2 %>%
@@ -290,11 +294,28 @@ mean(df2$RMSLE)
 ## Create your submission CSV
 
 ```{r}
-submission <- sample_submission %>% 
-  mutate(SalePrice = mean(training$SalePrice))
+
+predict_test2 <- model_2 %>%
+  broom::augment(newdata = test)
+
+```
+
+
+
+```{r}
+submission <- test %>% 
+  mutate(
+    log10_SalePrice = predict_test2$.fitted,
+    SalePrice = 10^log10_SalePrice
+    ) %>%
+  select(Id,SalePrice)
+
 
 write_csv(submission, path = "data/submission_reach_for_stars.csv")
 ```
+
+
+
 
 
 ## Screenshot of your Kaggle score
